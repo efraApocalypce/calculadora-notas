@@ -1,47 +1,137 @@
-let escalaActual = 7; // por defecto 1-7
+let escalaActual = 7;
 
 function cambiarEscala() {
     escalaActual = parseInt(document.getElementById('escala').value);
-    
-    const min = escalaActual === 7 ? 1 : 0;
-    const max = escalaActual;
-    const defaultNota = escalaActual === 7 ? 4.0 : 60;
+}
+    let min = 0;
+    let max = escalaActual;
+    let defaultNota = 4.0;
 
-    document.getElementById('notaActual').min = min;
-    document.getElementById('notaActual').max = max;
-    document.getElementById('notaActual').value = defaultNota;
+    if (escalaActual === 7) { 
+        min = 1.0;
+        defaultNota = 4.0;
+    } else if (escalaActual === 10) {
+        min = 0;
+        max = 10;
+        defaultNota = 4.0;
+    } else if (escalaActual === 20) {
+        min = 0;
+        max = 20;
+        defaultNota = 4.0;
+    } else if (escalaActual === 100) {
+        min = 0;
+        max = 100;
+        defaultNota = 50.0;
+    }
 
     document.getElementById('notaObjetivo').min = min;
     document.getElementById('notaObjetivo').max = max;
     document.getElementById('notaObjetivo').value = defaultNota;
+
+    document.querySelectorAll('.nota').forEach(input => {
+        input.min = min;
+        input.max = max;
+    });
+
+function agregarEvaluacion() {
+    const div = document.createElement('div');
+    div.className = 'evaluacion';
+    div.innerHTML = `
+        <input type="text" class="nombre" placeholder="Nombre (Ej: Prueba 1)">
+        <input type="number" class="nota" step="0.1" placeholder="Nota">
+        <input type="number" class="porcentaje" step="1" placeholder="%" style="width:80px">%
+        <button onclick="this.parentElement.remove()" class="eliminar">Eliminar</button>
+    `;
+    document.getElementById('evaluaciones').appendChild(div);
 }
 
-function calcular() {
-    const notaActual = parseFloat(document.getElementById('notaActual').value);
-    const porcActual = parseFloat(document.getElementById('porcentajeActual').value);
+function calcularTodo() {
+    let sumaPonderada = 0;
+    let totalPorcentaje = 0;
+
+    const evaluaciones = document.querySelectorAll('.evaluacion');
+
+    evaluaciones.forEach(ev => {
+        const nota = parseFloat(ev.querySelector('.nota').value) || 0;
+        const porcentaje = parseFloat(ev.querySelector('.porcentaje').value) || 0;
+
+        sumaPonderada += nota * porcentaje;
+        totalPorcentaje += porcentaje;
+    });
+
     const notaObjetivo = parseFloat(document.getElementById('notaObjetivo').value);
+    const porcentajeRestante = 100 - totalPorcentaje;
+    const resultadoDiv = document.getElementById('resultado');
 
-    const porcRestante = 100 - porcActual;
-    
-    // Fórmula general
-    const notaNecesaria = ((notaObjetivo * 100) - (notaActual * porcActual)) / porcRestante;
+    if (porcentajeRestante <= 0) {
+        resultadoDiv.innerHTML = `<strong style="color:green">✅ Ya completaste el 100%</strong>`;
+        return;
+    }
 
-    const resultado = document.getElementById('resultado');
-    const escala = escalaActual === 7 ? "7.0" : "100";
+    const notaNecesaria = ((notaObjetivo * 100) - sumaPonderada) / porcentajeRestante;
 
-    if (notaNecesaria > notaObjetivo * 1.1) {  // Un poco de tolerancia
-        resultado.innerHTML = `❌ Necesitas <strong>${notaNecesaria.toFixed(2)}</strong> en lo que queda.<br>Es muy difícil o imposible llegar a ${notaObjetivo} 😔`;
-        resultado.style.color = "#ff4444";
-    } 
-    else if (notaNecesaria < 1 && escalaActual === 7 || notaNecesaria < 0) {
-        resultado.innerHTML = `✅ Ya tienes más de lo necesario.<br>Solo mantén una nota positiva.`;
-        resultado.style.color = "#4CAF50";
-    } 
-    else {
-        resultado.innerHTML = `📊 Necesitas sacar <strong>${notaNecesaria.toFixed(2)}</strong> en el ${porcRestante}% restante<br><small>(Escala ${escala})</small>`;
-        resultado.style.color = "#4CAF50";
+    let mensaje = '';
+    let maxEscala = escalaActual;
+
+    if (notaNecesaria > maxEscala) {
+        mensaje = `❌ Imposible alcanzar el objetivo.<br>Necesitarías <strong>${notaNecesaria.toFixed(2)}</strong> (máximo es ${maxEscala})`;
+    } else if (notaNecesaria < 0) {
+        mensaje = `✅ Ya superaste el objetivo.`;
+    } else {
+        mensaje = `📊 Necesitas sacar <strong>${notaNecesaria.toFixed(2)}</strong> en el ${porcentajeRestante.toFixed(1)}% restante`;
+    }
+
+    resultadoDiv.innerHTML = mensaje;
+}
+
+function guardarNombre() {
+    const nombreInput = document.getElementById('nombreUsuario').value.trim();
+    if (nombreInput === " ") {
+        alert("Por favor, ingresa tu nombre");
+        return;
+    }
+    localStorage.setItem("nombreUsuario", nombreInput);
+    console.log("Nombre guardado", nombreInput);
+}
+
+function cargarNombre() {
+    const nombreGuardado = localStorage.getItem("nombreUsuario");
+    if (nombreGuardado) {
+        document.getElementById('nombreUsuario').value = nombreGuardado;
     }
 }
 
-// Inicializar
-cambiarEscala();
+function guardarDatos() {
+    const nombre = document.getElementById('nombreUsuario').value.trim()  || "Usuario";
+
+    const datos = {
+        nombreUsario: nombre,
+        escala : escalaActual,
+        evaluaciones: []
+    };
+
+    localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+}
+
+function cargarDatos() {
+    const datosGuardados = localStorage.getItem("datosCalculadora");
+
+    if (datosGuardados) {
+        document.getElementById('nombreUsuario').value = datos.nombreUsario;
+    }
+
+    console.log("Datos cargados", datos);
+}
+
+//Cuando se carga la pagina
+windowq.onload = () => {
+    agregarEvaluacion();
+    camiarEscala();
+    cargarDatos();
+    cargarNombre();
+};
+// Agregar una evaluación por defecto al cargar
+window.onload = () => {
+    agregarEvaluacion();
+    cambiarEscala();
+};

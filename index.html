@@ -3,30 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Notas</title>
+    <title>Calculadora de Notas Avanzada</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Calculadora de Notas</h1>
-        
-        <label><strong>Escala de evaluación:</strong></label>
+        <h1>🎯 Calculadora de Notas Avanzada</h1>
+
+        <div class="usuario-container">
+            <label>Tu Nombre:</label>
+            <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre aquí" onblur="guardarNombre()">
+            <button onclick="guardarNombre()">Guardar Nombre</button>
+        </div>
+
+        <label><strong>Escala:</strong></label>
         <select id="escala" onchange="cambiarEscala()">
             <option value="7">1.0 - 7.0 (Chile)</option>
-            <option value="100">0 - 100 (Porcentaje)</option>
+            <option value="10">0 - 10</option>
+            <option value="20">0 - 20</option>
+            <option value="100">0 - 100</option>
         </select>
 
-        <label>Nota actual:</label>
-        <input type="number" id="notaActual" step="0.1" value="4.0" min="1" max="7">
+        <h3>Evaluaciones:</h3>
+        <div id="evaluaciones"></div>
 
-        <label>Porcentaje ya evaluado (%):</label>
-        <input type="number" id="porcentajeActual" step="1" value="40" min="0" max="100">
+        <button onclick="agregarEvaluacion()">+ Agregar Evaluación</button>
 
-        <label>Nota objetivo:</label>
+        <h3>Nota Objetivo Final:</h3>
         <input type="number" id="notaObjetivo" step="0.1" value="4.0" min="1" max="7">
 
-        <button onclick="calcular()">Calcular qué necesito</button>
-        
+        <button onclick="calcularTodo()" class="calcular-btn">Calcular qué necesito</button>
+
         <div id="resultado"></div>
     </div>
 
