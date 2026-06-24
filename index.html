@@ -6,23 +6,36 @@
     <title>Calculadora de Notas Avanzada</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<>
     <div class="container">
-        <h1>🎯 Calculadora de Notas Avanzada</h1>
+        <h1>🎯 Gestor de materias</h1>
+            <select id="selectorMaterias" onchange="cambiarMateria()" class="selector­­-materias">
+            
+            </select>
 
-        <div class="usuario-container">
-            <label>Tu Nombre:</label>
-            <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre aquí" onblur="guardarNombre()">
-            <button onclick="guardarNombre()">Guardar Nombre</button>
-        </div>
+            <button onclick="crearNuevaMateria()" class="btn-nueva-materia">
+                + Nueva Materia
+            </button>
+    </div>
 
-        <label><strong>Escala:</strong></label>
-        <select id="escala" onchange="cambiarEscala()">
-            <option value="7">1.0 - 7.0 (Chile)</option>
-            <option value="10">0 - 10</option>
-            <option value="20">0 - 20</option>
-            <option value="100">0 - 100</option>
-        </select>
+    <div class="materia­-actual">
+        <input type="text" id="nombreMateriaActual"
+            placeholder="Nombre de la materia" oninput="guardarNombreMateria()"
+            onblur="guardarNombreMateria()">
+    </div>
+
+    <label><strong>Tu nombre:</strong></label>
+    <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre" oninput="guardarNombre()">
+
+    <label><strong>Escala:</strong></label>
+    <select id="escala" onchange="cambiarEscala()">
+        <option value="7">Escala 1.0 - 7.0</option>
+        <option value="10">Escala 0 - 10</option>
+        <option value="20">Escala 0 - 20</option>
+        <option value="100">Escala 0 - 100</option>
+    </select>
+
+    </div>
 
         <h3>Evaluaciones:</h3>
         <div id="evaluaciones"></div>
@@ -38,5 +51,6 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

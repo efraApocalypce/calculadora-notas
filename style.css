@@ -1,45 +1,102 @@
+/* style.css */
+
 body {
-    font-family: Arial, sans-serif;
-    background: #1e1e1e;
-    color: #fff;
-    text-align: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #1a1a1a;
+    color: #ffffff;
+    margin: 0;
     padding: 20px;
 }
 
 .container {
-    max-width: 500px;
+    max-width: 700px;
     margin: 0 auto;
     background: #2d2d2d;
-    padding: 30px;
-    border-radius: 15px;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-input, button {
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #4CAF50;
+}
+
+label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
     width: 100%;
     padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
+    margin-bottom: 10px;
     border: none;
-}
-
-input {
+    border-radius: 8px;
     background: #3d3d3d;
     color: white;
+    font-size: 16px;
 }
 
+input[type="number"] {
+    width: auto;
+    min-width: 80px;
+}
+
+/* Botones - Más equilibrados */
 button {
-    background: #4CAF50;
-    color: white;
-    font-size: 18px;
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s;
 }
 
 button:hover {
-    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-#resultado {
-    margin-top: 20px;
-    font-size: 20px;
+/* Botones verdes */
+.calcular-btn,
+button:not(.eliminar) {
+    background: #4CAF50;
+    color: white;
+}
+
+button.eliminar {
+    background: #f44336;
+    color: white;
+    padding: 8px 12px;
+    width: auto;
+    font-size: 14px;
+}
+
+/* Evaluaciones */
+.evaluacion {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #363636;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.evaluacion input {
+    margin-bottom: 0;
+}
+
+/* Ajustes específicos */
+#notaObjetivo {
+    font-size: 18px;
+    padding: 14px;
     font-weight: bold;
 }
