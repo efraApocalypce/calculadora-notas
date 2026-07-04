@@ -452,3 +452,11 @@ button {
     left: auto;
     right: 0;
 }
+
+.auth-error {
+    color: #f44336;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 8px;
+    min-height: 16px;
+}

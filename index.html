@@ -116,6 +116,8 @@
 
             <div class="config-separator"></div>
 
+            <div id="estadoSesion"></div>
+
             <button onclick="cerrarModalPerfil(); mostrarLoginPreview();" class="btn-exportar">
                 🔒 Login / Signup (Vista Previa)
             </button>
@@ -185,21 +187,21 @@
                 <div class="form-panel form-panel--login">
                     <h2>Bienvenido de nuevo</h2>
                     <p class="auth-subtext">Ingresa tus datos para continuar</p>
-                    <input type="text" placeholder="Correo electrónico" disabled>
-                    <input type="password" placeholder="Contraseña" disabled>
-                    <button class="auth-btn-primary" disabled>Iniciar sesión</button>
-                    <p class="auth-nota">🔒 Vista previa — el login real llega con Firebase</p>
+                    <input type="email" id="loginEmail" placeholder="Correo electrónico">
+                    <input type="password" id="loginPassword" placeholder="Contraseña">
+                    <button class="auth-btn-primary" onclick="manejarLogin()">Iniciar sesión</button>
+                    <p id="authErrorLogin" class="auth-error"></p>
                 </div>
 
                 <!-- Formulario de Registro -->
                 <div class="form-panel form-panel--signup">
                     <h2>Crea tu cuenta</h2>
                     <p class="auth-subtext">Solo toma unos segundos</p>
-                    <input type="text" placeholder="Nombre completo" disabled>
-                    <input type="text" placeholder="Correo electrónico" disabled>
-                    <input type="password" placeholder="Contraseña" disabled>
-                    <button class="auth-btn-primary" disabled>Crear cuenta</button>
-                    <p class="auth-nota">🔒 Vista previa — el login real llega con Firebase</p>
+                    <input type="text" id="signupNombre" placeholder="Nombre completo">
+                    <input type="email" id="signupEmail" placeholder="Correo electrónico">
+                    <input type="password" id="signupPassword" placeholder="Contraseña (mínimo 6 caracteres)">
+                    <button class="auth-btn-primary" onclick="manejarSignup()">Crear cuenta</button>
+                    <p id="authErrorSignup" class="auth-error"></p>
                 </div>
 
                 <!-- Panel diagonal que se desliza -->
@@ -219,7 +221,7 @@
             </div>
         </div>
     </div>
-
+    <script type="module" src="firebase-config.js"></script>
     <script src="script.js"></script>
     <script src="app.js"></script>
 </body>

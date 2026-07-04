@@ -46,6 +46,7 @@ function agregarEvaluacion() {
 }
 
 function calcularTodo() {
+    guardarEvaluacionesMateriaActual();   
     let sumaPonderada = 0;
     let totalPorcentaje = 0;
 

@@ -25,6 +25,8 @@ function crearNuevaMateria() {
 }
 
 function confirmarNuevaMateria() {
+    guardarEvaluacionesMateriaActual(); 
+
     const nombre = document.getElementById('inputNuevaMateria').value.trim();
     if (!nombre) {
         alert("Por favor escribe un nombre para la materia");
@@ -394,6 +396,45 @@ function activarModoSignup() {
 
 function activarModoLogin() {
     document.getElementById('authContainer').classList.remove('active');
+}
+
+// ====================== CONECTAR FORMULARIOS CON FIREBASE ======================
+function manejarLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        document.getElementById('authErrorLogin').textContent = 'Completa ambos campos.';
+        return;
+    }
+    window.iniciarSesionConFirebase(email, password);
+}
+
+function manejarSignup() {
+    const nombre = document.getElementById('signupNombre').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+
+    if (!nombre || !email || !password) {
+        document.getElementById('authErrorSignup').textContent = 'Completa todos los campos.';
+        return;
+    }
+    window.registrarConFirebase(email, password);
+}
+
+// ====================== ESTADO DE SESIÓN EN PERFIL ======================
+function actualizarUIAuth(user) {
+    const estadoDiv = document.getElementById('estadoSesion');
+    if (!estadoDiv) return;
+
+    if (user) {
+        estadoDiv.innerHTML = `
+            <p>✅ Sesión iniciada como <strong>${user.email}</strong></p>
+            <button onclick="cerrarSesionFirebase()" class="btn-borrar-todo">Cerrar sesión</button>
+        `;
+    } else {
+        estadoDiv.innerHTML = `<p>🔒 No has iniciado sesión</p>`;
+    }
 }
 
 // ====================== INICIALIZACIÓN ======================
