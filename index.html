@@ -3,51 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Notas Avanzada</title>
+    <title>Gestor de Notas Avanzado</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<>
+<body>
     <div class="container">
-        <h1>🎯 Gestor de materias</h1>
-            <select id="selectorMaterias" onchange="cambiarMateria()" class="selector­­-materias">
-            
-            </select>
+        <!-- MENÚ EXPANDIBLE SUPERIOR IZQUIERDA (como en el video) -->
+        <div class="menu-superior">
+            <div class="menu-item" onclick="mostrarAsignaturas()">
+                <i class="bi bi-book"></i>
+                <span class="menu-label">Asignaturas</span>
+            </div>
+            <div class="menu-item" onclick="crearNuevaMateria()">
+                <i class="bi bi-plus-circle"></i>
+                <span class="menu-label">Nueva Materia</span>
+            </div>
+            <div class="menu-item" onclick="mostrarConfiguracion()">
+                <i class="bi bi-gear"></i>
+                <span class="menu-label">Configuración</span>
+            </div>
+            <div class="menu-item" onclick="mostrarPerfil()">
+                <i class="bi bi-person"></i>
+                <span class="menu-label">Perfil</span>
+            </div>
+        </div>
 
-            <button onclick="crearNuevaMateria()" class="btn-nueva-materia">
-                + Nueva Materia
-            </button>
-    </div>
+        <h1>🎯 Gestor de Notas Avanzado</h1>
 
-    <div class="materia­-actual">
-        <input type="text" id="nombreMateriaActual"
-            placeholder="Nombre de la materia" oninput="guardarNombreMateria()"
-            onblur="guardarNombreMateria()">
-    </div>
+        <!-- Nombre de la materia actual -->
+        <div class="materia-actual">
+            <input type="text" id="nombreMateriaActual" 
+                   placeholder="Nombre de la materia" 
+                   onblur="guardarNombreMateriaActual()">
+        </div>
 
-    <label><strong>Tu nombre:</strong></label>
-    <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre" oninput="guardarNombre()">
+        <!-- Escala -->
+        <label><strong>Escala:</strong></label>
+        <select id="escala" onchange="cambiarEscala()">
+            <option value="7">1.0 - 7.0</option>
+            <option value="10">0 - 10</option>
+            <option value="20">0 - 20</option>
+            <option value="100">0 - 100</option>
+        </select>
 
-    <label><strong>Escala:</strong></label>
-    <select id="escala" onchange="cambiarEscala()">
-        <option value="7">Escala 1.0 - 7.0</option>
-        <option value="10">Escala 0 - 10</option>
-        <option value="20">Escala 0 - 20</option>
-        <option value="100">Escala 0 - 100</option>
-    </select>
-
-    </div>
-
+        <!-- Evaluaciones -->
         <h3>Evaluaciones:</h3>
         <div id="evaluaciones"></div>
 
-        <button onclick="agregarEvaluacion()">+ Agregar Evaluación</button>
+        <button onclick="agregarEvaluacion()" class="btn-agregar">
+            + Agregar Evaluación
+        </button>
 
-        <h3>Nota Objetivo Final:</h3>
-        <input type="number" id="notaObjetivo" step="0.1" value="4.0" min="1" max="7">
+        <!-- Nota Objetivo -->
+        <label><strong>Nota Objetivo Final:</strong></label>
+        <input type="number" id="notaObjetivo" step="0.1" value="4.0">
 
-        <button onclick="calcularTodo()" class="calcular-btn">Calcular qué necesito</button>
+        <button onclick="calcularTodo()" class="calcular-btn">
+            Calcular qué necesito
+        </button>
 
         <div id="resultado"></div>
+    </div>
+
+    <!-- MODAL LISTA DE ASIGNATURAS -->
+    <div id="modalAsignaturas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Tus Asignaturas</h3>
+                <span class="modal-cerrar-x" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div id="listaAsignaturasModal" class="sidebar-list"></div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA MATERIA -->
+    <div id="modalNuevaMateria" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Nueva Materia</h3>
+                <span class="modal-cerrar-x" onclick="cancelarNuevaMateria()">&times;</span>
+            </div>
+            <label><strong>Nombre de la materia:</strong></label>
+            <input type="text" id="inputNuevaMateria" placeholder="Ej: Matemáticas"
+                   onkeydown="if(event.key==='Enter') confirmarNuevaMateria();">
+
+            <div class="modal-buttons">
+                <button onclick="cancelarNuevaMateria()" class="btn-cancelar">Cancelar</button>
+                <button onclick="confirmarNuevaMateria()" class="btn-crear-confirm">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PERFIL -->
+    <div id="modalPerfil" class="modal">
+        <div class="modal-content">
+           <div class="modal-header">
+                <h3>👤 Perfil</h3>
+                <span class="modal-cerrar-x" onclick="cerrarModalPerfil()">&times;</span>
+            </div>
+
+            <label><strong>Tu nombre:</strong></label>
+            <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre" onblur="guardarNombre()">
+            
+            <div class="config-separator"></div>
+
+            <div id="estadisticasPerfil" class="perfil-stats"></div>
+
+            <h4 class="perfil-subtitulo">Resumen de tus materias</h4>
+            <div id="resumenMateriasPerfil" class="sidebar-list"></div>
+
+            <div class="config-separator"></div>
+
+            <button onclick="cerrarModalPerfil(); mostrarLoginPreview();" class="btn-exportar">
+                🔒 Login / Signup (Vista Previa)
+            </button>
+
+            <p class="perfil-aviso">🔒 Próximamente: inicia sesión para sincronizar tus notas en la nube y verlas desde cualquier dispositivo</p>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div id="modalConfirmacion" class="modal">
+        <div class="modal-content">
+            <h3>¿Eliminar asignatura?</h3>
+            <p id="mensajeConfirmacion">¿Estás seguro de eliminar esta asignatura y todas sus evaluaciones?</p>
+            
+            <div class="modal-buttons">
+                <button onclick="cancelarEliminacion()" class="btn-cancelar">Cancelar</button>
+                <button onclick="confirmarEliminacion()" class="btn-eliminar-confirm">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURACIÓN -->
+    <div id="modalConfiguracion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ Configuración</h3>
+                <span class="modal-cerrar-x" onclick="cerrarModalConfiguracion()">&times;</span>
+            </div>
+            <label><strong>Escala por defecto para materias nuevas:</strong></label>
+            <select id="configEscalaDefecto" onchange="guardarConfiguracion()">
+                <option value="7">1.0 - 7.0</option>
+                <option value="10">0 - 10</option>
+                <option value="20">0 - 20</option>
+                <option value="100">0 - 100</option>
+            </select>
+
+            <label><strong>Decimales en los resultados:</strong></label>
+            <select id="configDecimales" onchange="guardarConfiguracion()">
+                <option value="1">1 decimal (Ej: 4.5)</option>
+                <option value="2">2 decimales (Ej: 4.53)</option>
+            </select>
+
+            <div class="config-separator"></div>
+
+            <button onclick="exportarDatos()" class="btn-exportar">Exportar mis datos</button>
+
+            <label class="label-importar"><strong>Importar datos:</strong></label>
+            <input type="file" id="inputImportar" accept=".json" onchange="importarDatos(event)">
+
+            <div class="config-separator"></div>
+
+            <button onclick="borrarTodosLosDatos()" class="btn-borrar-todo">Borrar todos los datos</button>
+        </div>
+    </div>
+
+    <!-- MODAL VISTA PREVIA LOGIN/SIGNUP -->
+    <div id="modalLoginPreview" class="modal">
+        <div class="modal-content auth-modal-content">
+            <div class="modal-header">
+                <h3>🔒 Login / Signup (Vista Previa)</h3>
+                <span class="modal-cerrar-x" onclick="cerrarModalLoginPreview()">&times;</span>
+            </div>
+
+            <div class="auth-container" id="authContainer">
+
+                <!-- Formulario de Login -->
+                <div class="form-panel form-panel--login">
+                    <h2>Bienvenido de nuevo</h2>
+                    <p class="auth-subtext">Ingresa tus datos para continuar</p>
+                    <input type="text" placeholder="Correo electrónico" disabled>
+                    <input type="password" placeholder="Contraseña" disabled>
+                    <button class="auth-btn-primary" disabled>Iniciar sesión</button>
+                    <p class="auth-nota">🔒 Vista previa — el login real llega con Firebase</p>
+                </div>
+
+                <!-- Formulario de Registro -->
+                <div class="form-panel form-panel--signup">
+                    <h2>Crea tu cuenta</h2>
+                    <p class="auth-subtext">Solo toma unos segundos</p>
+                    <input type="text" placeholder="Nombre completo" disabled>
+                    <input type="text" placeholder="Correo electrónico" disabled>
+                    <input type="password" placeholder="Contraseña" disabled>
+                    <button class="auth-btn-primary" disabled>Crear cuenta</button>
+                    <p class="auth-nota">🔒 Vista previa — el login real llega con Firebase</p>
+                </div>
+
+                <!-- Panel diagonal que se desliza -->
+                <div class="overlay-panel">
+                    <div class="overlay-content overlay-content--right">
+                        <h3>¿Nuevo por aquí?</h3>
+                        <p>Crea una cuenta y guarda tus materias en la nube.</p>
+                        <button class="auth-btn-outline" onclick="activarModoSignup()">Crear cuenta</button>
+                    </div>
+                    <div class="overlay-content overlay-content--left">
+                        <h3>¿Ya tienes cuenta?</h3>
+                        <p>Inicia sesión para continuar donde lo dejaste.</p>
+                        <button class="auth-btn-outline" onclick="activarModoLogin()">Iniciar sesión</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

@@ -61,20 +61,33 @@ function calcularTodo() {
     const porcentajeRestante = 100 - totalPorcentaje;
     const resultadoDiv = document.getElementById('resultado');
 
+    // === CASO 100% COMPLETO ===
     if (porcentajeRestante <= 0) {
-        resultadoDiv.innerHTML = `<strong style="color:green">✅ Ya completaste el 100%</strong>`;
+        const notaFinal = sumaPonderada / 100;   // ← Calculamos la nota final real
+
+        let mensaje = `<strong style="color:#4CAF50">✅ Has completado el 100% del curso</strong><br>`;
+        mensaje += `Tu nota final es <strong>${notaFinal.toFixed(decimalesConfig)}</strong> `;
+
+        if (notaFinal >= notaObjetivo) {
+            mensaje += `🎉 (Superaste tu objetivo de ${notaObjetivo})`;
+        } else {
+            mensaje += `(por debajo de tu objetivo de ${notaObjetivo})`;
+        }
+
+        resultadoDiv.innerHTML = mensaje;
         return;
     }
 
+    // === CASO NORMAL (aún falta porcentaje) ===
     const notaNecesaria = ((notaObjetivo * 100) - sumaPonderada) / porcentajeRestante;
 
     let mensaje = '';
     if (notaNecesaria > escalaActual) {
-        mensaje = `❌ Imposible alcanzar el objetivo.<br>Necesitarías <strong>${notaNecesaria.toFixed(2)}</strong>`;
+        mensaje = `❌ Imposible alcanzar el objetivo.<br>Necesitarías <strong>${notaNecesaria.toFixed(decimalesConfig)}</strong>`;
     } else if (notaNecesaria < 0) {
         mensaje = `✅ Ya superaste el objetivo.`;
     } else {
-        mensaje = `📊 Necesitas sacar <strong>${notaNecesaria.toFixed(2)}</strong> en el ${porcentajeRestante.toFixed(1)}% restante`;
+        mensaje = `📊 Necesitas sacar <strong>${notaNecesaria.toFixed(decimalesConfig)}</strong> en el ${porcentajeRestante.toFixed(1)}% restante`;
     }
 
     resultadoDiv.innerHTML = mensaje;
