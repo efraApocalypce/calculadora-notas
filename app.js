@@ -25,7 +25,7 @@ function crearNuevaMateria() {
 }
 
 function confirmarNuevaMateria() {
-    guardarEvaluacionesMateriaActual(); 
+    guardarEvaluacionesMateriaActual();
 
     const nombre = document.getElementById('inputNuevaMateria').value.trim();
     if (!nombre) {
@@ -47,7 +47,7 @@ function confirmarNuevaMateria() {
     datos.materias.push(nuevaMateria);
     materiaActualId = nuevaMateria.id;
 
-    localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+    guardarDatosCalculadora(datos);
 
     actualizarListaSidebar();
     cargarMateria(nuevaMateria.id);
@@ -127,7 +127,7 @@ function guardarNombreMateriaActual() {
     const materia = datos.materias.find(m => m.id === materiaActualId);
     if (materia) {
         materia.nombre = nombre;
-        localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+        guardarDatosCalculadora(datos);
         actualizarListaSidebar();
     }
 }
@@ -152,7 +152,7 @@ function guardarEvaluacionesMateriaActual() {
     materia.notaObjetivo = parseFloat(document.getElementById('notaObjetivo').value) || materia.notaObjetivo;
     materia.escala = escalaActual;
 
-    localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+    guardarDatosCalculadora(datos);
 }
 
 function mostrarAsignaturas() {
@@ -219,7 +219,7 @@ function confirmarEliminacion() {
         }
     }
 
-    localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+    guardarDatosCalculadora(datos);
 
     // Si el modal de asignaturas está abierto, refrescar su lista al instante
     const modalAsignaturas = document.getElementById('modalAsignaturas');
@@ -294,7 +294,7 @@ function importarDatos(event) {
             const datos = JSON.parse(e.target.result);
             if (!datos.materias) throw new Error("Formato inválido");
 
-            localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+            guardarDatosCalculadora(datos);
             materiaActualId = datos.materiaActualId || (datos.materias[0] ? datos.materias[0].id : null);
             
             if (materiaActualId) cargarMateria(materiaActualId);
@@ -313,7 +313,7 @@ function borrarTodosLosDatos() {
     const confirmado = confirm("¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.");
     if (!confirmado) return;
 
-    localStorage.removeItem("datosCalculadora");
+    guardarDatosCalculadora({ materias: [] });
     materiaActualId = null;
     cerrarModalConfiguracion();
     crearNuevaMateria();
@@ -434,6 +434,32 @@ function actualizarUIAuth(user) {
         `;
     } else {
         estadoDiv.innerHTML = `<p>🔒 No has iniciado sesión</p>`;
+    }
+}
+
+// ====================== SINCRONIZACIÓN CON LA NUBE ======================
+function guardarDatosCalculadora(datos) {
+    localStorage.setItem("datosCalculadora", JSON.stringify(datos));
+    if (typeof window.sincronizarConFirestore === 'function') {
+        window.sincronizarConFirestore(datos);
+    }
+}
+
+function cargarDatosDesdeNube(datosNube) {
+    localStorage.setItem("datosCalculadora", JSON.stringify(datosNube));
+
+    if (datosNube.materias && datosNube.materias.length > 0) {
+        materiaActualId = datosNube.materiaActualId || datosNube.materias[0].id;
+    } else {
+        materiaActualId = null;
+    }
+
+    actualizarListaSidebar();
+
+    if (materiaActualId) {
+        cargarMateria(materiaActualId);
+    } else {
+        crearNuevaMateria();
     }
 }
 
