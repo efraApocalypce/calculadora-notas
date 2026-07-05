@@ -177,7 +177,7 @@
     <div id="modalLoginPreview" class="modal">
         <div class="modal-content auth-modal-content">
             <div class="modal-header">
-                <h3>🔒 Login / Signup (Vista Previa)</h3>
+                <h3>🔒 Login / Signup</h3>
                 <span class="modal-cerrar-x" onclick="cerrarModalLoginPreview()">&times;</span>
             </div>
 
@@ -191,6 +191,16 @@
                     <input type="password" id="loginPassword" placeholder="Contraseña">
                     <button class="auth-btn-primary" onclick="manejarLogin()">Iniciar sesión</button>
                     <p id="authErrorLogin" class="auth-error"></p>
+
+                    <div class="auth-divider"><span>o continúa con</span></div>
+                    <div class="auth-social-row">
+                        <button class="auth-btn-social" onclick="manejarLoginGoogle()">
+                            <i class="bi bi-google"></i> Google
+                        </button>
+                        <button class="auth-btn-social" onclick="manejarLoginGithub()">
+                            <i class="bi bi-github"></i> GitHub
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Formulario de Registro -->
@@ -202,6 +212,16 @@
                     <input type="password" id="signupPassword" placeholder="Contraseña (mínimo 6 caracteres)">
                     <button class="auth-btn-primary" onclick="manejarSignup()">Crear cuenta</button>
                     <p id="authErrorSignup" class="auth-error"></p>
+
+                    <div class="auth-divider"><span>o continúa con</span></div>
+                    <div class="auth-social-row">
+                        <button class="auth-btn-social" onclick="manejarSignupGoogle()">
+                            <i class="bi bi-google"></i> Google
+                        </button>
+                        <button class="auth-btn-social" onclick="manejarSignupGithub()">
+                            <i class="bi bi-github"></i> GitHub
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Panel diagonal que se desliza -->

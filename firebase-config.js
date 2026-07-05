@@ -1,4 +1,4 @@
-// firebase-config.js — Conexión con Firebase Authentication + Firestore
+// firebase-config.js — Conexión con Firebase Authentication + Firestore + Login Social
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -6,7 +6,10 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
     getFirestore,
@@ -27,6 +30,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
 
 // ====================== REGISTRO ======================
 window.registrarConFirebase = function (email, password) {
@@ -59,6 +65,29 @@ window.iniciarSesionConFirebase = function (email, password) {
 // ====================== LOGOUT ======================
 window.cerrarSesionFirebase = function () {
     signOut(auth);
+};
+
+// ====================== LOGIN SOCIAL (GOOGLE / GITHUB) ======================
+window.loginConGoogle = function (errorDivId) {
+    signInWithPopup(auth, googleProvider)
+        .then(() => {
+            cerrarModalLoginPreview();
+        })
+        .catch((error) => {
+            const div = document.getElementById(errorDivId);
+            if (div) div.textContent = traducirErrorFirebase(error.code);
+        });
+};
+
+window.loginConGithub = function (errorDivId) {
+    signInWithPopup(auth, githubProvider)
+        .then(() => {
+            cerrarModalLoginPreview();
+        })
+        .catch((error) => {
+            const div = document.getElementById(errorDivId);
+            if (div) div.textContent = traducirErrorFirebase(error.code);
+        });
 };
 
 // ====================== GUARDAR EN LA NUBE ======================
@@ -107,7 +136,10 @@ function traducirErrorFirebase(code) {
         'auth/wrong-password': 'Contraseña incorrecta.',
         'auth/user-not-found': 'No existe una cuenta con ese correo.',
         'auth/invalid-credential': 'Correo o contraseña incorrectos.',
-        'auth/too-many-requests': 'Demasiados intentos. Espera un momento e intenta de nuevo.'
+        'auth/too-many-requests': 'Demasiados intentos. Espera un momento e intenta de nuevo.',
+        'auth/popup-closed-by-user': 'Cerraste la ventana antes de terminar.',
+        'auth/account-exists-with-different-credential': 'Ya existe una cuenta con ese correo usando otro método de acceso.',
+        'auth/popup-blocked': 'El navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.'
     };
     return mensajes[code] || 'Ocurrió un error. Intenta de nuevo.';
 }

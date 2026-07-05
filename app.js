@@ -422,6 +422,23 @@ function manejarSignup() {
     window.registrarConFirebase(email, password);
 }
 
+// ====================== LOGIN SOCIAL (GOOGLE / GITHUB) ======================
+function manejarLoginGoogle() {
+    window.loginConGoogle('authErrorLogin');
+}
+
+function manejarLoginGithub() {
+    window.loginConGithub('authErrorLogin');
+}
+
+function manejarSignupGoogle() {
+    window.loginConGoogle('authErrorSignup');
+}
+
+function manejarSignupGithub() {
+    window.loginConGithub('authErrorSignup');
+}
+
 // ====================== ESTADO DE SESIÓN EN PERFIL ======================
 function actualizarUIAuth(user) {
     const estadoDiv = document.getElementById('estadoSesion');
