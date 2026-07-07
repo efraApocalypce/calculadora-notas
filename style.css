@@ -326,7 +326,7 @@ button {
 }
 
 .form-panel h2 {
-    color: #4CAF50;
+    color: #3ab600;
     margin-bottom: 8px;
 }
 
@@ -366,7 +366,7 @@ button {
     left: 60%;
     width: 40%;
     height: 100%;
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    background: linear-gradient(135deg, #6220ad, #1b5e20);
     clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
     transition: left 900ms cubic-bezier(.77, 0, .18, 1),
                 clip-path 900ms cubic-bezier(.77, 0, .18, 1);
