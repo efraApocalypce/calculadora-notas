@@ -2,6 +2,37 @@
 
 let materiaActualId = null;
 let decimalesConfig = 2;
+let huboCambiosSinGuardar = false;
+let callbackConfirmacion = null;
+
+// ====================== NOTIFICACIONES / CONFIRMACIONES PERSONALIZADAS ======================
+function mostrarNotificacion(mensaje) {
+    document.getElementById('notificacionMensaje').textContent = mensaje;
+    document.getElementById('notificacionBotones').innerHTML = `
+        <button onclick="cerrarNotificacion()" class="btn-crear-confirm">Aceptar</button>
+    `;
+    document.getElementById('modalNotificacion').style.display = 'flex';
+}
+
+function mostrarConfirmacionPersonalizada(mensaje, callback) {
+    callbackConfirmacion = callback;
+    document.getElementById('notificacionMensaje').textContent = mensaje;
+    document.getElementById('notificacionBotones').innerHTML = `
+        <button onclick="cerrarNotificacion()" class="btn-cancelar">Cancelar</button>
+        <button onclick="ejecutarConfirmacionPersonalizada()" class="btn-eliminar-confirm">Confirmar</button>
+    `;
+    document.getElementById('modalNotificacion').style.display = 'flex';
+}
+
+function ejecutarConfirmacionPersonalizada() {
+    cerrarNotificacion();
+    if (typeof callbackConfirmacion === 'function') callbackConfirmacion();
+    callbackConfirmacion = null;
+}
+
+function cerrarNotificacion() {
+    document.getElementById('modalNotificacion').style.display = 'none';
+}
 
 // ====================== NOMBRE DE USUARIO ======================
 function guardarNombre() {
@@ -29,7 +60,7 @@ function confirmarNuevaMateria() {
 
     const nombre = document.getElementById('inputNuevaMateria').value.trim();
     if (!nombre) {
-        alert("Por favor escribe un nombre para la materia");
+        mostrarNotificacion("Por favor escribe un nombre para la materia");
         return;
     }
 
@@ -52,6 +83,7 @@ function confirmarNuevaMateria() {
     actualizarListaSidebar();
     cargarMateria(nuevaMateria.id);
     cerrarModalNuevaMateria();
+    mostrarVistaCalculadora();
 }
 
 function cancelarNuevaMateria() {
@@ -168,7 +200,13 @@ function actualizarListaAsignaturasModal() {
     lista.innerHTML = '';
 
     if (datos.materias.length === 0) {
-        lista.innerHTML = '<p>No tienes asignaturas aún. Crea una nueva.</p>';
+        lista.innerHTML = `
+            <div class="estado-vacio">
+                <i class="bi bi-inbox"></i>
+                <p>Aún no hay nada por aquí</p>
+                <span>Crea tu primera materia para empezar</span>
+            </div>
+        `;
     } else {
         datos.materias.forEach(materia => {
             const div = document.createElement('div');
@@ -185,6 +223,7 @@ function actualizarListaAsignaturasModal() {
                 materiaActualId = materia.id;
                 cargarMateria(materia.id);
                 cerrarModal();
+                mostrarVistaCalculadora();
             };
             lista.appendChild(div);
         });
@@ -221,7 +260,6 @@ function confirmarEliminacion() {
 
     guardarDatosCalculadora(datos);
 
-    // Si el modal de asignaturas está abierto, refrescar su lista al instante
     const modalAsignaturas = document.getElementById('modalAsignaturas');
     if (modalAsignaturas.style.display === 'flex') {
         actualizarListaAsignaturasModal();
@@ -298,31 +336,31 @@ function importarDatos(event) {
             materiaActualId = datos.materiaActualId || (datos.materias[0] ? datos.materias[0].id : null);
             
             if (materiaActualId) cargarMateria(materiaActualId);
-            alert("Datos importados correctamente");
+            mostrarNotificacion("Datos importados correctamente");
             cerrarModalConfiguracion();
         } catch (error) {
-                alert("El archivo no es válido o está dañado");
+            mostrarNotificacion("El archivo no es válido o está dañado");
         }
     };
     lector.readAsText(archivo);
-    event.target.value = ''; // Limpiar el input para poder importar el mismo archivo nuevamente si se desea
+    event.target.value = '';
 }
 
 // ====================== BORRAR TODO ======================
 function borrarTodosLosDatos() {
-    const confirmado = confirm("¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.");
-    if (!confirmado) return;
-
-    guardarDatosCalculadora({ materias: [] });
-    materiaActualId = null;
-    cerrarModalConfiguracion();
-    crearNuevaMateria();
+    mostrarConfirmacionPersonalizada("¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.", function () {
+        guardarDatosCalculadora({ materias: [] });
+        materiaActualId = null;
+        cerrarModalConfiguracion();
+        crearNuevaMateria();
+    });
 }
 
 // ====================== PERFIL ======================
 function mostrarPerfil() {
     guardarEvaluacionesMateriaActual();
     cargarNombre();
+    actualizarAvatarPerfil();
     actualizarEstadisticasPerfil();
     actualizarResumenMateriasPerfil();
     document.getElementById('modalPerfil').style.display = 'flex';
@@ -351,7 +389,13 @@ function actualizarResumenMateriasPerfil() {
     contenedor.innerHTML = '';
 
     if (datos.materias.length === 0) {
-        contenedor.innerHTML = '<p>No tienes materias registradas.</p>';
+        contenedor.innerHTML = `
+            <div class="estado-vacio">
+                <i class="bi bi-inbox"></i>
+                <p>Aún no hay nada por aquí</p>
+                <span>Crea tu primera materia para empezar</span>
+            </div>
+        `;
         return;
     }
 
@@ -375,14 +419,35 @@ function actualizarResumenMateriasPerfil() {
         div.innerHTML = `
             <div class="nombre">${materia.nombre}</div>
             <div class="info">${textoPromedio}</div>
+            <div class="barra-progreso-riel">
+                <div class="barra-progreso-relleno" style="width: ${totalPorcentaje}%"></div>
+            </div>
         `;
         contenedor.appendChild(div);
     });
 }
 
+function actualizarAvatarPerfil() {
+    const nombre = document.getElementById('nombreUsuario').value.trim() || 'U';
+    const inicial = nombre.charAt(0).toUpperCase();
+
+    let suma = 0;
+    for (let i = 0; i < nombre.length; i++) {
+        suma += nombre.charCodeAt(i);
+    }
+    const colores = ['#2f9e6e', '#3d7dca', '#d9698f', '#c98a3d', '#7a5ec7'];
+    const color = colores[suma % colores.length];
+
+    const avatar = document.getElementById('avatarPerfil');
+    avatar.textContent = inicial;
+    avatar.style.background = color;
+}
+
 // ====================== VISTA PREVIA LOGIN/SIGNUP ======================
 function mostrarLoginPreview() {
     document.getElementById('authContainer').classList.remove('active');
+    document.getElementById('authErrorLogin').textContent = '';
+    document.getElementById('authErrorSignup').textContent = '';
     document.getElementById('modalLoginPreview').style.display = 'flex';
 }
 
@@ -442,6 +507,7 @@ function manejarSignupGithub() {
 // ====================== ESTADO DE SESIÓN EN PERFIL ======================
 function actualizarUIAuth(user) {
     const estadoDiv = document.getElementById('estadoSesion');
+    const btnLogin = document.getElementById('btnLoginPreview');
     if (!estadoDiv) return;
 
     if (user) {
@@ -449,9 +515,117 @@ function actualizarUIAuth(user) {
             <p>✅ Sesión iniciada como <strong>${user.email}</strong></p>
             <button onclick="cerrarSesionFirebase()" class="btn-borrar-todo">Cerrar sesión</button>
         `;
+        if (btnLogin) btnLogin.style.display = 'none';
     } else {
         estadoDiv.innerHTML = `<p>🔒 No has iniciado sesión</p>`;
+        if (btnLogin) btnLogin.style.display = 'block';
     }
+}
+
+// ====================== TEMA CLARO / OSCURO ======================
+function alternarTema() {
+    const actual = document.documentElement.getAttribute('data-theme');
+    const nuevo = actual === 'light' ? 'dark' : 'light';
+    aplicarTema(nuevo);
+    localStorage.setItem('temaApp', nuevo);
+
+    const icono = document.getElementById('iconoTema');
+    if (icono) {
+        icono.classList.add('girando');
+        setTimeout(() => icono.classList.remove('girando'), 400);
+    }
+}
+
+function aplicarTema(tema) {
+    if (tema === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+    const icono = document.getElementById('iconoTema');
+    if (icono) {
+        icono.className = tema === 'light' ? 'bi bi-moon-stars' : 'bi bi-sun';
+    }
+}
+
+function cargarTema() {
+    const guardado = localStorage.getItem('temaApp') || 'dark';
+    aplicarTema(guardado);
+}
+
+// ====================== TOAST DE GUARDADO ======================
+function mostrarToastGuardado() {
+    const toast = document.getElementById('toastGuardado');
+    if (!toast) return;
+    toast.classList.add('visible');
+    clearTimeout(window._toastTimeout);
+    window._toastTimeout = setTimeout(() => toast.classList.remove('visible'), 1200);
+}
+
+// ====================== ESTADO DE CONEXIÓN ======================
+function actualizarEstadoConexion() {
+    const banner = document.getElementById('bannerOffline');
+    if (!banner) return;
+    banner.classList.toggle('visible', !navigator.onLine);
+}
+
+window.addEventListener('online', actualizarEstadoConexion);
+window.addEventListener('offline', actualizarEstadoConexion);
+
+// ====================== DASHBOARD ======================
+function mostrarDashboard() {
+    guardarEvaluacionesMateriaActual();
+    document.getElementById('vistaDashboard').style.display = 'block';
+    document.getElementById('vistaCalculadora').style.display = 'none';
+    actualizarDashboardGrid();
+}
+
+function mostrarVistaCalculadora() {
+    document.getElementById('vistaDashboard').style.display = 'none';
+    document.getElementById('vistaCalculadora').style.display = 'block';
+}
+
+function actualizarDashboardGrid() {
+    const datos = JSON.parse(localStorage.getItem("datosCalculadora")) || { materias: [] };
+    const grid = document.getElementById('dashboardGrid');
+    grid.innerHTML = '';
+
+    if (datos.materias.length === 0) {
+        grid.innerHTML = `
+            <div class="estado-vacio">
+                <i class="bi bi-inbox"></i>
+                <p>Aún no hay nada por aquí</p>
+                <span>Crea tu primera materia para empezar</span>
+            </div>
+        `;
+        return;
+    }
+
+    datos.materias.forEach(materia => {
+        let sumaPonderada = 0;
+        let totalPorcentaje = 0;
+        (materia.evaluaciones || []).forEach(ev => {
+            sumaPonderada += (ev.nota || 0) * (ev.porcentaje || 0);
+            totalPorcentaje += (ev.porcentaje || 0);
+        });
+        const promedio = totalPorcentaje > 0 ? (sumaPonderada / totalPorcentaje).toFixed(decimalesConfig) : '—';
+
+        const card = document.createElement('div');
+        card.className = 'dashboard-card';
+        card.innerHTML = `
+            <div class="nombre">${materia.nombre}</div>
+            <div class="info">Promedio: <strong>${promedio}</strong> (${totalPorcentaje.toFixed(0)}% evaluado)</div>
+            <div class="barra-progreso-riel">
+                <div class="barra-progreso-relleno" style="width: ${totalPorcentaje}%"></div>
+            </div>
+        `;
+        card.onclick = () => {
+            materiaActualId = materia.id;
+            cargarMateria(materia.id);
+            mostrarVistaCalculadora();
+        };
+        grid.appendChild(card);
+    });
 }
 
 // ====================== SINCRONIZACIÓN CON LA NUBE ======================
@@ -460,6 +634,8 @@ function guardarDatosCalculadora(datos) {
     if (typeof window.sincronizarConFirestore === 'function') {
         window.sincronizarConFirestore(datos);
     }
+    huboCambiosSinGuardar = false;
+    mostrarToastGuardado();
 }
 
 function cargarDatosDesdeNube(datosNube) {
@@ -474,14 +650,17 @@ function cargarDatosDesdeNube(datosNube) {
     actualizarListaSidebar();
 
     if (materiaActualId) {
-        cargarMateria(materiaActualId);
+        mostrarDashboard();
     } else {
+        mostrarVistaCalculadora();
         crearNuevaMateria();
     }
 }
 
 // ====================== INICIALIZACIÓN ======================
 window.onload = () => {
+    actualizarEstadoConexion();
+    cargarTema();
     cargarConfiguracion();
     cargarNombre();
 
@@ -496,8 +675,16 @@ window.onload = () => {
     actualizarListaSidebar();
 
     if (materiaActualId) {
-        cargarMateria(materiaActualId);
+        mostrarDashboard();
     } else {
+        mostrarVistaCalculadora();
         crearNuevaMateria();
     }
 };
+
+// ====================== ESCUCHADOR DE CAMBIOS SIN GUARDAR ======================
+window.addEventListener('beforeunload', function (evento) {
+    if (huboCambiosSinGuardar) {
+        evento.preventDefault();
+    }
+});

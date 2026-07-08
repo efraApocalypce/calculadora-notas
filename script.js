@@ -46,6 +46,7 @@ function agregarEvaluacion() {
 }
 
 function calcularTodo() {
+    huboCambiosSinGuardar = true;
     guardarEvaluacionesMateriaActual();   
     let sumaPonderada = 0;
     let totalPorcentaje = 0;
@@ -66,7 +67,7 @@ function calcularTodo() {
     if (porcentajeRestante <= 0) {
         const notaFinal = sumaPonderada / 100;   // ← Calculamos la nota final real
 
-        let mensaje = `<strong style="color:#4CAF50">✅ Has completado el 100% del curso</strong><br>`;
+        let mensaje = `<strong style="color:var(--accent-primary)">✅ Has completado el 100% del curso</strong><br>`;
         mensaje += `Tu nota final es <strong>${notaFinal.toFixed(decimalesConfig)}</strong> `;
 
         if (notaFinal >= notaObjetivo) {
@@ -93,3 +94,6 @@ function calcularTodo() {
 
     resultadoDiv.innerHTML = mensaje;
 }
+
+//=== CALCULO EN VIVO ===
+document.getElementById('evaluaciones').addEventListener('input', calcularTodo);
