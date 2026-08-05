@@ -95,8 +95,17 @@ window.sincronizarConFirestore = function (datos) {
     const user = auth.currentUser;
     if (!user) return; // Si no hay sesión, no hay nada que sincronizar
 
-    setDoc(doc(db, "usuarios", user.uid), datos).catch((error) => {
+    setDoc(doc(db, "usuarios", user.uid), datos, { merge: true }).catch((error) => {
         console.error("Error guardando en la nube:", error);
+    });
+};
+
+window.guardarFotoPerfil = function (base64) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setDoc(doc(db, "usuarios", user.uid), { fotoPerfil: base64 }, { merge: true }).catch((error) => {
+        console.error("Error guardando la foto:", error);
     });
 };
 
@@ -112,9 +121,13 @@ onAuthStateChanged(auth, async (user) => {
             const snap = await getDoc(refDoc);
 
             if (snap.exists()) {
+                const datosNube = snap.data();
                 // Ya existían datos en la nube: los bajamos y reemplazan lo local
                 if (typeof window.cargarDatosDesdeNube === 'function') {
-                    window.cargarDatosDesdeNube(snap.data());
+                    window.cargarDatosDesdeNube(datosNube);
+                }
+                if (datosNube.fotoPerfil && typeof window.actualizarFotoPerfilDesdeNube === 'function') {
+                    window.actualizarFotoPerfilDesdeNube(datosNube.fotoPerfil);
                 }
             } else {
                 // Primera vez que este usuario inicia sesión: subimos lo que tenía local como punto de partida

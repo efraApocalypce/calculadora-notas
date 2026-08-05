@@ -428,6 +428,15 @@ function actualizarResumenMateriasPerfil() {
 }
 
 function actualizarAvatarPerfil() {
+    const avatar = document.getElementById('avatarPerfil');
+    const fotoGuardada = localStorage.getItem('fotoPerfil');
+
+    if (fotoGuardada) {
+        avatar.innerHTML = `<img src="${fotoGuardada}" alt="Foto de perfil">`;
+        avatar.style.background = 'transparent';
+        return;
+    }
+
     const nombre = document.getElementById('nombreUsuario').value.trim() || 'U';
     const inicial = nombre.charAt(0).toUpperCase();
 
@@ -438,10 +447,57 @@ function actualizarAvatarPerfil() {
     const colores = ['#2f9e6e', '#3d7dca', '#d9698f', '#c98a3d', '#7a5ec7'];
     const color = colores[suma % colores.length];
 
-    const avatar = document.getElementById('avatarPerfil');
+    avatar.innerHTML = '';
     avatar.textContent = inicial;
     avatar.style.background = color;
 }
+
+// ====================== FOTO DE PERFIL ======================
+function manejarSubidaFoto(event) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+        mostrarNotificacion('Por favor selecciona un archivo de imagen válido.');
+        return;
+    }
+
+    const lector = new FileReader();
+    lector.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const tamano = 200;
+            const canvas = document.createElement('canvas');
+            canvas.width = tamano;
+            canvas.height = tamano;
+            const ctx = canvas.getContext('2d');
+
+            const lado = Math.min(img.width, img.height);
+            const offsetX = (img.width - lado) / 2;
+            const offsetY = (img.height - lado) / 2;
+            ctx.drawImage(img, offsetX, offsetY, lado, lado, 0, 0, tamano, tamano);
+
+            const base64 = canvas.toDataURL('image/jpeg', 0.7);
+            guardarFotoPerfilLocalYNube(base64);
+        };
+        img.src = e.target.result;
+    };
+    lector.readAsDataURL(archivo);
+    event.target.value = '';
+}
+
+function guardarFotoPerfilLocalYNube(base64) {
+    localStorage.setItem('fotoPerfil', base64);
+    actualizarAvatarPerfil();
+    if (typeof window.guardarFotoPerfil === 'function') {
+        window.guardarFotoPerfil(base64);
+    }
+}
+
+window.actualizarFotoPerfilDesdeNube = function (base64) {
+    localStorage.setItem('fotoPerfil', base64);
+    actualizarAvatarPerfil();
+};
 
 // ====================== VISTA PREVIA LOGIN/SIGNUP ======================
 function mostrarLoginPreview() {

@@ -127,7 +127,13 @@
                 <span class="modal-cerrar-x" onclick="cerrarModalPerfil()">&times;</span>
             </div>
 
-            <div id="avatarPerfil" class="avatar-circulo"></div>
+            <div class="avatar-wrapper">
+                <div id="avatarPerfil" class="avatar-circulo"></div>
+                <label for="inputFotoPerfil" class="avatar-editar" title="Cambiar foto">
+                    <i class="bi bi-camera-fill"></i>
+                </label>
+                <input type="file" id="inputFotoPerfil" accept="image/*" onchange="manejarSubidaFoto(event)" hidden>
+            </div>
 
             <label><strong>Tu nombre:</strong></label>
             <input type="text" id="nombreUsuario" placeholder="Escribe tu nombre" onblur="guardarNombre()">
