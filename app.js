@@ -139,6 +139,7 @@ function cargarMateria(id) {
             const div = document.createElement('div');
             div.className = 'evaluacion';
             div.innerHTML = `
+                <i class="bi bi-grip-vertical arrastrar"></i>
                 <input type="text" class="nombre" value="${ev.nombre || ''}" placeholder="Nombre (Ej: Prueba 1)">
                 <input type="number" class="nota" step="0.1" value="${ev.nota || ''}" placeholder="Nota">
                 <input type="number" class="porcentaje" step="1" value="${ev.porcentaje || ''}" placeholder="%" style="width:80px">%
@@ -235,6 +236,8 @@ function cerrarModal() {
 }
 
 let materiaAEliminar = null;
+let materiaEliminadaTemporal = null;
+let indiceMateriaEliminadaTemporal = null;
 
 function eliminarMateria(id) {
     materiaAEliminar = id;
@@ -247,7 +250,14 @@ function confirmarEliminacion() {
     if (!materiaAEliminar) return;
 
     let datos = JSON.parse(localStorage.getItem("datosCalculadora")) || { materias: [] };
-    
+
+    const indice = datos.materias.findIndex(m => m.id === materiaAEliminar);
+    if (indice === -1) return;
+
+    // Guardamos una copia por si el usuario le da "Deshacer"
+    materiaEliminadaTemporal = datos.materias[indice];
+    indiceMateriaEliminadaTemporal = indice;
+
     datos.materias = datos.materias.filter(m => m.id !== materiaAEliminar);
 
     if (materiaActualId === materiaAEliminar) {
@@ -269,8 +279,50 @@ function confirmarEliminacion() {
         cargarMateria(materiaActualId);
     }
 
+    mostrarToastDeshacer(materiaEliminadaTemporal.nombre);
+
     cerrarConfirmacion();
     materiaAEliminar = null;
+}
+
+// ====================== DESHACER ELIMINACIÓN ======================
+function mostrarToastDeshacer(nombreMateria) {
+    const toast = document.getElementById('toastDeshacer');
+    document.getElementById('toastDeshacerTexto').textContent = `"${nombreMateria}" eliminada`;
+    toast.classList.add('visible');
+
+    clearTimeout(window._toastDeshacerTimeout);
+    window._toastDeshacerTimeout = setTimeout(() => {
+        toast.classList.remove('visible');
+        materiaEliminadaTemporal = null;
+        indiceMateriaEliminadaTemporal = null;
+    }, 5000);
+}
+
+function deshacerEliminacion() {
+    if (!materiaEliminadaTemporal) return;
+
+    clearTimeout(window._toastDeshacerTimeout);
+    document.getElementById('toastDeshacer').classList.remove('visible');
+
+    let datos = JSON.parse(localStorage.getItem("datosCalculadora")) || { materias: [] };
+
+    const posicion = Math.min(indiceMateriaEliminadaTemporal, datos.materias.length);
+    datos.materias.splice(posicion, 0, materiaEliminadaTemporal);
+
+    materiaActualId = materiaEliminadaTemporal.id;
+    guardarDatosCalculadora(datos);
+
+    actualizarListaSidebar();
+    actualizarDashboardGrid();
+
+    const modalAsignaturas = document.getElementById('modalAsignaturas');
+    if (modalAsignaturas.style.display === 'flex') {
+        actualizarListaAsignaturasModal();
+    }
+
+    materiaEliminadaTemporal = null;
+    indiceMateriaEliminadaTemporal = null;
 }
 
 function cancelarEliminacion() {
@@ -499,6 +551,48 @@ window.actualizarFotoPerfilDesdeNube = function (base64) {
     actualizarAvatarPerfil();
 };
 
+// ====================== EXPORTAR REPORTE COMO PDF ======================
+function exportarComoPDF() {
+    const datos = JSON.parse(localStorage.getItem("datosCalculadora")) || { materias: [] };
+    const nombreUsuario = document.getElementById('nombreUsuario').value.trim() || 'Estudiante';
+    const reporte = document.getElementById('reportePDF');
+
+    if (datos.materias.length === 0) {
+        mostrarNotificacion('No tienes materias para exportar todavía.');
+        return;
+    }
+
+    let html = `<h1>🎯 Reporte de Notas — ${nombreUsuario}</h1>`;
+    html += `<p>Generado el ${new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>`;
+
+    datos.materias.forEach(materia => {
+        let sumaPonderada = 0;
+        let totalPorcentaje = 0;
+        (materia.evaluaciones || []).forEach(ev => {
+            sumaPonderada += (ev.nota || 0) * (ev.porcentaje || 0);
+            totalPorcentaje += (ev.porcentaje || 0);
+        });
+        const promedio = totalPorcentaje > 0 ? (sumaPonderada / totalPorcentaje).toFixed(decimalesConfig) : '—';
+
+        html += `<div class="materia-reporte">`;
+        html += `<h2>${materia.nombre} — Promedio: ${promedio} (${totalPorcentaje.toFixed(0)}% evaluado)</h2>`;
+
+        if (materia.evaluaciones && materia.evaluaciones.length > 0) {
+            html += `<table><thead><tr><th>Evaluación</th><th>Nota</th><th>%</th></tr></thead><tbody>`;
+            materia.evaluaciones.forEach(ev => {
+                html += `<tr><td>${ev.nombre || 'Sin nombre'}</td><td>${ev.nota}</td><td>${ev.porcentaje}%</td></tr>`;
+            });
+            html += `</tbody></table>`;
+        } else {
+            html += `<p>Sin evaluaciones registradas.</p>`;
+        }
+        html += `</div>`;
+    });
+
+    reporte.innerHTML = html;
+    window.print();
+}
+
 // ====================== VISTA PREVIA LOGIN/SIGNUP ======================
 function mostrarLoginPreview() {
     document.getElementById('authContainer').classList.remove('active');
@@ -711,6 +805,15 @@ function cargarDatosDesdeNube(datosNube) {
         mostrarVistaCalculadora();
         crearNuevaMateria();
     }
+}
+
+// ====================== PWA: REGISTRAR SERVICE WORKER ======================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch((error) => {
+            console.error('Error registrando el service worker:', error);
+        });
+    });
 }
 
 // ====================== INICIALIZACIÓN ======================

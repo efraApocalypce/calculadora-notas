@@ -37,6 +37,7 @@ function agregarEvaluacion() {
     const div = document.createElement('div');
     div.className = 'evaluacion';
     div.innerHTML = `
+        <i class="bi bi-grip-vertical arrastrar"></i>
         <input type="text" class="nombre" placeholder="Nombre (Ej: Prueba 1)">
         <input type="number" class="nota" step="0.1" placeholder="Nota">
         <input type="number" class="porcentaje" step="1" placeholder="%" style="width:80px">%
@@ -97,3 +98,12 @@ function calcularTodo() {
 
 //=== CALCULO EN VIVO ===
 document.getElementById('evaluaciones').addEventListener('input', calcularTodo);
+
+//=== ARRASTRAR PARA REORDENAR EVALUACIONES (usa la librería SortableJS) ===
+new Sortable(document.getElementById('evaluaciones'), {
+    handle: '.arrastrar',
+    animation: 150,
+    onEnd: function () {
+        calcularTodo();
+    }
+});

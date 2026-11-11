@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2f9e6e">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -90,6 +94,14 @@
 
     <div id="toastGuardado" class="toast-guardado">✓ Guardado</div>
 
+    <div id="toastDeshacer" class="toast-deshacer">
+        <span id="toastDeshacerTexto">Materia eliminada</span>
+        <button onclick="deshacerEliminacion()" class="btn-deshacer">Deshacer</button>
+    </div>
+
+    <!-- Contenedor solo para impresión (reporte PDF) -->
+    <div id="reportePDF" class="solo-impresion"></div>
+
     <!-- MODAL LISTA DE ASIGNATURAS -->
     <div id="modalAsignaturas" class="modal">
         <div class="modal-content">
@@ -151,6 +163,10 @@
 
             <button id="btnLoginPreview" onclick="cerrarModalPerfil(); mostrarLoginPreview();" class="btn-exportar">
                 🔒 Login / Signup
+            </button>
+
+            <button onclick="exportarComoPDF()" class="btn-agregar">
+                🖨️ Exportar como PDF
             </button>
 
         </div>
@@ -229,6 +245,7 @@
                     <input type="password" id="loginPassword" placeholder="Contraseña">
                     <button class="auth-btn-primary" onclick="manejarLogin()">Iniciar sesión</button>
                     <p id="authErrorLogin" class="auth-error"></p>
+                    <p class="auth-switch-mobile">¿No tienes cuenta? <a href="#" onclick="activarModoSignup(); return false;">Regístrate</a></p>
 
                     <div class="auth-divider"><span>o continúa con</span></div>
                     <div class="auth-social-row">
@@ -250,6 +267,7 @@
                     <input type="password" id="signupPassword" placeholder="Contraseña (mínimo 6 caracteres)">
                     <button class="auth-btn-primary" onclick="manejarSignup()">Crear cuenta</button>
                     <p id="authErrorSignup" class="auth-error"></p>
+                    <p class="auth-switch-mobile">¿Ya tienes cuenta? <a href="#" onclick="activarModoLogin(); return false;">Inicia sesión</a></p>
 
                     <div class="auth-divider"><span>o continúa con</span></div>
                     <div class="auth-social-row">
