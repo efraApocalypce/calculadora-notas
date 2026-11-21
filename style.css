@@ -1013,3 +1013,21 @@ button:active {
         font-size: 13px;
     }
 }
+
+/* ====================== CAMPO DE PORCENTAJE MÁS LEGIBLE ====================== */
+.porcentaje {
+    width: 70px;
+    flex: 0 0 70px;
+    text-align: center;
+}
+
+/* Ocultar las flechitas nativas de subir/bajar (quitan espacio y no se necesitan aquí) */
+.porcentaje::-webkit-outer-spin-button,
+.porcentaje::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.porcentaje {
+    -moz-appearance: textfield;
+}

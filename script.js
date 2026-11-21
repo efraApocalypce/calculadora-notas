@@ -40,7 +40,7 @@ function agregarEvaluacion() {
         <i class="bi bi-grip-vertical arrastrar"></i>
         <input type="text" class="nombre" placeholder="Nombre (Ej: Prueba 1)">
         <input type="number" class="nota" step="0.1" placeholder="Nota">
-        <input type="number" class="porcentaje" step="1" placeholder="%" style="width:80px">%
+        <input type="number" class="porcentaje" step="1" placeholder="%">%
         <button onclick="this.parentElement.remove()" class="eliminar">Eliminar</button>
     `;
     document.getElementById('evaluaciones').appendChild(div);

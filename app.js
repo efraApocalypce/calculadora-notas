@@ -142,7 +142,7 @@ function cargarMateria(id) {
                 <i class="bi bi-grip-vertical arrastrar"></i>
                 <input type="text" class="nombre" value="${ev.nombre || ''}" placeholder="Nombre (Ej: Prueba 1)">
                 <input type="number" class="nota" step="0.1" value="${ev.nota || ''}" placeholder="Nota">
-                <input type="number" class="porcentaje" step="1" value="${ev.porcentaje || ''}" placeholder="%" style="width:80px">%
+                <input type="number" class="porcentaje" step="1" value="${ev.porcentaje || ''}" placeholder="%">%
                 <button onclick="this.parentElement.remove()" class="eliminar">Eliminar</button>
             `;
             contenedor.appendChild(div);
